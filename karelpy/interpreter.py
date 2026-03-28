@@ -1,14 +1,14 @@
 from typing import Dict, List
 
 from .ast_nodes import Call, Condition, ForLoop, FunctionDef, IfStatement, Node, Program, WhileLoop
-from .errors import KarelRuntimeError, KarelShutdown, MaxStepsError
+from .errors import KarelReturn, KarelRuntimeError, KarelShutdown, MaxStepsError
 from .robot import Robot
 from .world import DIRECTION_DELTA, TURN_LEFT, TURN_RIGHT, World
 
 MAX_STEPS = 10_000
 
 # Instrucciones primitivas de Karel
-PRIMITIVES = {"avanza", "gira_izquierda", "coge_zumbador", "deja_zumbador", "apagate"}
+PRIMITIVES = {"avanza", "gira_izquierda", "coge_zumbador", "deja_zumbador", "apagate", "termina"}
 
 # Condiciones válidas de Karel
 CONDITIONS = {
@@ -55,8 +55,8 @@ class Interpreter:
 
         try:
             self._exec_block(program.main.body)
-        except KarelShutdown:
-            pass  # terminación normal via apagate()
+        except (KarelShutdown, KarelReturn):
+            pass  # apagate() o termina() al nivel de programa()
 
         return self.steps
 
@@ -98,7 +98,10 @@ class Interpreter:
         name = stmt.name
         # Las funciones del usuario tienen prioridad sobre las primitivas
         if name in self.functions:
-            self._exec_block(self.functions[name].body)
+            try:
+                self._exec_block(self.functions[name].body)
+            except KarelReturn:
+                pass  # termina() → sale de esta función, continúa en el llamador
         elif name in PRIMITIVES:
             self._exec_primitive(name, stmt.line)
         elif name in CONDITIONS:
@@ -152,6 +155,9 @@ class Interpreter:
 
         elif name == "apagate":
             raise KarelShutdown()
+
+        elif name == "termina":
+            raise KarelReturn()
 
         self._snapshot()
 

@@ -29,3 +29,8 @@ class MaxStepsError(KarelRuntimeError):
 class KarelShutdown(Exception):
     """Señal de terminación normal cuando Karel ejecuta apagate()."""
     pass
+
+
+class KarelReturn(Exception):
+    """Señal de retorno anticipado cuando Karel ejecuta termina()."""
+    pass
