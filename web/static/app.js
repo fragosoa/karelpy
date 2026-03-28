@@ -227,9 +227,15 @@ class KarelApp {
     this.canvas   = document.getElementById('world-canvas');
     this.renderer = new WorldRenderer(this.canvas);
 
-    // Left-click → add beeper; right-click → remove beeper
+    // Left-click → add beeper / toggle wall; right-click → remove beeper / toggle wall
     this.canvas.addEventListener('click',       (e) => this._onCanvasClick(e,  1));
     this.canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); this._onCanvasClick(e, -1); });
+
+    // Change cursor to hint which action will occur
+    this.canvas.addEventListener('mousemove', (e) => {
+      const zone = this._clickZone(e);
+      this.canvas.style.cursor = zone === 'center' ? 'crosshair' : 'cell';
+    });
 
     // Resize when the window changes
     window.addEventListener('resize', () => this._renderInitial());
@@ -277,26 +283,62 @@ class KarelApp {
 
   // ── Canvas interaction ─────────────────────────────────────
 
-  _onCanvasClick(e, delta) {
-    const rect = this.canvas.getBoundingClientRect();
-    const x    = e.clientX - rect.left;
-    const y    = e.clientY - rect.top;
-    const col  = Math.floor(x / this.renderer.cellSize) + 1;
-    const row  = this.renderer.worldHeight - Math.floor(y / this.renderer.cellSize);
-    const key  = `${col},${row}`;
+  // Returns { col, row, localX, localY } for a mouse event
+  _cellAt(e) {
+    const rect   = this.canvas.getBoundingClientRect();
+    const px     = e.clientX - rect.left;
+    const py     = e.clientY - rect.top;
+    const { cellSize, worldHeight } = this.renderer;
+    const col0   = Math.floor(px / cellSize);
+    const row0   = Math.floor(py / cellSize);
+    return {
+      col:    col0 + 1,
+      row:    worldHeight - row0,
+      localX: px - col0 * cellSize,
+      localY: py - row0 * cellSize,
+    };
+  }
 
-    const current = this.worldBeepers[key] || 0;
-    const next    = current + delta;
-    if (next <= 0) {
-      delete this.worldBeepers[key];
+  // Returns 'NORTH' | 'SOUTH' | 'EAST' | 'WEST' | 'center'
+  _clickZone(e) {
+    const { localX, localY } = this._cellAt(e);
+    const { cellSize } = this.renderer;
+    const t = Math.max(6, Math.floor(cellSize * 0.2));
+    if (localY < t)              return 'NORTH';
+    if (localY > cellSize - t)   return 'SOUTH';
+    if (localX < t)              return 'WEST';
+    if (localX > cellSize - t)   return 'EAST';
+    return 'center';
+  }
+
+  _onCanvasClick(e, delta) {
+    const { col, row } = this._cellAt(e);
+    const zone = this._clickZone(e);
+
+    if (zone === 'center') {
+      // Add / remove beeper
+      const key     = `${col},${row}`;
+      const current = this.worldBeepers[key] || 0;
+      const next    = current + delta;
+      if (next <= 0) delete this.worldBeepers[key];
+      else           this.worldBeepers[key] = next;
     } else {
-      this.worldBeepers[key] = next;
+      // Toggle wall on that edge
+      this._toggleWall(col, row, zone);
     }
 
-    // Reset steps so UI shows the new initial world
     this.steps = [];
     this._updateCounter();
     this._renderInitial();
+  }
+
+  _toggleWall(col, row, dir) {
+    const idx = this.worldWalls.findIndex(([c, r, d]) => c === col && r === row && d === dir);
+    if (idx >= 0) {
+      this.worldWalls.splice(idx, 1);
+    } else {
+      this.worldWalls.push([col, row, dir]);
+    }
   }
 
   clearWorld() {

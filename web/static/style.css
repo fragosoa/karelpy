@@ -207,6 +207,13 @@ main {
 }
 .btn-sm:hover { background: #505050; }
 
+.cfg-hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+}
+
 /* ── Status bar ──────────────────────────────────────── */
 #status-bar {
   background: #007acc;

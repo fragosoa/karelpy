@@ -91,5 +91,5 @@ class World:
             world.beepers[(col, row)] = count
         for wall in data.get("walls", []):
             col, row, direction = int(wall[0]), int(wall[1]), wall[2]
-            world.walls.add((col, row, direction))
+            world.add_wall(col, row, direction)  # agrega el espejo automáticamente
         return world
