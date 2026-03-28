@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Instalación / build
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
