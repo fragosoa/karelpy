@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KarelPy</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <header>
+    <span class="logo">KarelPy</span>
+  </header>
+
+  <main>
+    <!-- ── Editor ─────────────────────────────────────── -->
+    <div class="editor-panel">
+      <div class="editor-toolbar">
+        <button id="btn-run" class="btn btn-primary">&#9654; Ejecutar</button>
+      </div>
+      <textarea id="code-editor"></textarea>
+    </div>
+
+    <!-- ── World ──────────────────────────────────────── -->
+    <div class="world-panel">
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="world-canvas"></canvas>
+      </div>
+
+      <!-- Playback controls -->
+      <div class="controls">
+        <button id="btn-reset"  title="Inicio">&#9198;</button>
+        <button id="btn-back"   title="Paso anterior">&#9664;</button>
+        <button id="btn-play"   title="Reproducir">&#9654;</button>
+        <button id="btn-end"    title="Final">&#9197;</button>
+        <label class="speed-label">
+          Velocidad
+          <input type="range" id="speed-slider" min="1" max="20" value="5">
+        </label>
+        <span id="step-counter">Paso 0 / 0</span>
+      </div>
+
+      <!-- World / robot configuration -->
+      <div class="world-config">
+        <span class="cfg-title">Mundo</span>
+        <label>ancho <input type="number" id="cfg-width"  value="10" min="1" max="30"></label>
+        <label>alto  <input type="number" id="cfg-height" value="10" min="1" max="30"></label>
+        <span class="cfg-sep">|</span>
+        <span class="cfg-title">Robot</span>
+        <label>col <input type="number" id="cfg-col" value="1" min="1"></label>
+        <label>fila <input type="number" id="cfg-row" value="1" min="1"></label>
+        <label>dir
+          <select id="cfg-dir">
+            <option value="NORTH">Norte</option>
+            <option value="EAST">Este</option>
+            <option value="SOUTH">Sur</option>
+            <option value="WEST">Oeste</option>
+          </select>
+        </label>
+        <label>mochila <input type="number" id="cfg-bag" value="0" min="-1"></label>
+        <button id="btn-clear-world" class="btn-sm">Limpiar mundo</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="status-bar">Karel en (1, 1) · mirando al Norte · mochila: 0 zumbadores</div>
+
+  <div id="error-panel" class="hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
