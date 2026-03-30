@@ -493,5 +493,96 @@ class KarelApp {
   }
 }
 
+// ────────────────────────────────────────────────────────────
+// AiPanel  —  AI code generation side panel
+// ────────────────────────────────────────────────────────────
+
+class AiPanel {
+  constructor(karelApp) {
+    this.karelApp = karelApp;
+    this.open = false;
+
+    this.toggleBtn  = document.getElementById('btn-toggle-ai');
+    this.panel      = document.getElementById('ai-panel');
+    this.promptEl   = document.getElementById('ai-prompt');
+    this.generateBtn= document.getElementById('btn-generate');
+    this.resultEl   = document.getElementById('ai-result');
+    this.codeOutput = document.getElementById('ai-code-output');
+    this.insertBtn  = document.getElementById('btn-insert');
+    this.errorEl    = document.getElementById('ai-error');
+    this.loadingEl  = document.getElementById('ai-loading');
+
+    this.toggleBtn.addEventListener('click',   () => this.toggle());
+    this.generateBtn.addEventListener('click', () => this.generate());
+    this.insertBtn.addEventListener('click',   () => this.insertIntoEditor());
+
+    this.promptEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) this.generate();
+    });
+  }
+
+  toggle() {
+    this.open = !this.open;
+    document.querySelector('main').classList.toggle('ai-open', this.open);
+    this.panel.classList.toggle('hidden', !this.open);
+    this.toggleBtn.classList.toggle('active', this.open);
+    if (this.open) this.promptEl.focus();
+  }
+
+  async generate() {
+    const prompt = this.promptEl.value.trim();
+    if (!prompt) return;
+
+    this._setLoading(true);
+    this._hideError();
+    this.resultEl.classList.add('hidden');
+
+    try {
+      const res  = await fetch('/api/generate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ prompt }),
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        this.codeOutput.value = data.code;
+        this.resultEl.classList.remove('hidden');
+      } else {
+        this._showError(data.error);
+      }
+    } catch (err) {
+      this._showError('Error de conexión: ' + err.message);
+    } finally {
+      this._setLoading(false);
+    }
+  }
+
+  insertIntoEditor() {
+    const code = this.codeOutput.value.trim();
+    if (!code) return;
+    this.karelApp.editor.setValue(code);
+    this.karelApp.editor.focus();
+  }
+
+  _setLoading(on) {
+    this.loadingEl.classList.toggle('hidden', !on);
+    this.generateBtn.disabled    = on;
+    this.generateBtn.textContent = on ? 'Generando…' : '✨ Generar código';
+  }
+
+  _showError(msg) {
+    this.errorEl.textContent = msg;
+    this.errorEl.classList.remove('hidden');
+  }
+
+  _hideError() {
+    this.errorEl.classList.add('hidden');
+  }
+}
+
 // ── Boot ────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => { window.app = new KarelApp(); });
+window.addEventListener('DOMContentLoaded', () => {
+  window.app = new KarelApp();
+  window.aiPanel = new AiPanel(window.app);
+});

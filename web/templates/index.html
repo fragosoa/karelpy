@@ -12,6 +12,7 @@
 
   <header>
     <span class="logo">KarelPy</span>
+    <button id="btn-toggle-ai" class="btn-ai-toggle" title="Asistente IA">✨ IA</button>
   </header>
 
   <main>
@@ -21,6 +22,25 @@
         <button id="btn-run" class="btn btn-primary">&#9654; Ejecutar</button>
       </div>
       <textarea id="code-editor"></textarea>
+    </div>
+
+    <!-- ── AI Panel ───────────────────────────────────── -->
+    <div class="ai-panel hidden" id="ai-panel">
+      <div class="ai-header">Asistente IA</div>
+      <div class="ai-body">
+        <label class="ai-label">Describe el problema</label>
+        <textarea id="ai-prompt" placeholder="Ej: Haz que Karel recorra el perímetro del mundo y recoja todos los zumbadores que encuentre en el camino."></textarea>
+        <button id="btn-generate" class="btn btn-primary">✨ Generar código</button>
+
+        <div id="ai-result" class="hidden">
+          <label class="ai-label">Código generado</label>
+          <textarea id="ai-code-output"></textarea>
+          <button id="btn-insert" class="btn btn-insert">↩ Insertar en editor</button>
+        </div>
+
+        <div id="ai-error" class="hidden ai-error-msg"></div>
+        <div id="ai-loading" class="hidden ai-loading">Generando<span class="dots">...</span></div>
+      </div>
     </div>
 
     <!-- ── World ──────────────────────────────────────── -->

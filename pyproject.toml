@@ -8,7 +8,7 @@ version = "0.1.0"
 requires-python = ">=3.11"
 
 [project.optional-dependencies]
-web = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
+web = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "openai>=1.0", "python-dotenv>=1.0"]
 dev = ["pytest>=8.0"]
 
 [tool.pytest.ini_options]
